@@ -1,0 +1,462 @@
+--José Alejandro Grande Marín
+--201602855
+﻿﻿--creo la tabla profesion
+create table PROFESION(
+cod_prof integer not null,
+nombre varchar(50),
+primary key (cod_prof)
+)
+
+select * from PROFESION
+
+--aqui hago que el nombre de la profecion sea unica
+Alter table PROFESION
+add constraint UQ_nombre
+Unique(nombre)
+
+
+--aqui creo la tabla pais
+create table PAIS(
+cod_pais integer not null,
+nombre varchar(50) not null,
+primary key (cod_pais)
+)
+Alter table PAIS
+add constraint UQ_nombrepais
+Unique(nombre)
+
+
+--aqui creo la tabla PUESTO
+create table PUESTO(
+cod_puesto integer not null,
+nombre varchar(50) not null,
+primary key(cod_puesto)
+)
+
+Alter table PUESTO
+add constraint UQ_nombrepuesto
+Unique (nombre)
+
+
+--aqui creo la tabla departamento
+create table DEPARTAMENTO(
+cod_depto integer not null,
+nombre varchar(50) not null,
+primary key(cod_depto)
+)
+
+Alter table DEPARTAMENTO
+add constraint UQ_nombredepto
+Unique (nombre)
+
+
+--aqui creo la tabla MIEMBRO el on delete cascade sirve para descartar y limpiar los datos de todos los registros en donde se encuentra
+create table MIEMBRO(
+cod_miembro integer not null,
+nombre varchar(100) not null,
+apellido varchar(100) not null,
+edad integer not null,
+telefono integer,
+residencia varchar(100),
+PAIS_cod_pais integer not null,
+PROFESION_cod_prof integer not null,
+constraint FKMIEMBRO_cod_pais foreign key(PAIS_cod_pais) references PAIS(cod_pais) on delete cascade,
+constraint FKMIEMBRO_cod_prof foreign key(PROFESION_cod_prof) references PROFESION(cod_prof) on delete cascade,
+primary key (cod_miembro)
+)
+
+
+--Creare la tabla PUESTO_MIEMBRO
+create table PUESTO_MIEMBRO
+(
+    MIEMBRO_cod_miembro INTEGER not null,
+    PUESTO_cod_puesto INTEGER not null,
+    DEPARTAMENTO_cod_depto INTEGER not null,
+    fecha_inicio DATE not null,
+    fecha_fin Date null,
+    constraint FKPUESTOM_cod_miembro foreign key(MIEMBRO_cod_miembro) references MIEMBRO(cod_miembro) on delete cascade,
+    constraint FKPUESTOM_cod_puesto foreign key(PUESTO_cod_puesto) references PUESTO(cod_puesto) on delete cascade,
+    constraint FKPUESTOM_cod_depto foreign key(DEPARTAMENTO_cod_depto) references DEPARTAMENTO(cod_depto) on delete cascade ,
+    primary key(MIEMBRO_cod_miembro, PUESTO_cod_puesto, DEPARTAMENTO_cod_depto)
+)
+
+--Creare la tabla tipo medalla
+create table TIPO_MEDALLA(
+cod_tipo integer not null,
+medalla varchar(20) not null,
+primary key (cod_tipo)
+)
+Alter table TIPO_MEDALLA
+add constraint UQ_TIPO_MEDALLA
+Unique (medalla)
+
+--creare la tabla Medallero
+create table MEDALLERO(
+PAIS_cod_pais integer not null,
+cantidad_medallas integer not null,
+TIPO_MEDALLA_cod_tipo integer not null,
+constraint FKMEDALLERO_cod_pais foreign key(PAIS_cod_pais) references PAIS(cod_pais) on delete cascade ,
+constraint FKMEDALLERO_cod_tipo foreign key(TIPO_MEDALLA_cod_tipo) references TIPO_MEDALLA(cod_tipo) on delete cascade ,
+primary key(PAIS_cod_pais, TIPO_MEDALLA_cod_tipo)
+)
+
+--creare la tabla Disciplina
+
+create table DISCIPLINA(
+cod_disciplina integer not null,
+nombre varchar(50) not null,
+descripcion varchar(150) null,
+primary key(cod_disciplina)
+
+)
+
+--creare la tabla Atleta
+create table ATLETA(
+    cod_atleta integer not null,
+    nombre varchar(50) not null,
+    apellido varchar(50) not null,
+    edad integer not null,
+    participaciones varchar(100) not null,
+    DISCIPLINA_cod_disciplina integer not null,
+    PAIS_cod_pais integer not null,
+    constraint FKATLETA_cod_disciplina foreign key(DISCIPLINA_cod_disciplina) references DISCIPLINA(cod_disciplina) on delete cascade ,
+    constraint FKATLETA_cod_pais foreign key(PAIS_cod_pais) references PAIS(cod_pais) on delete cascade ,
+    primary key(cod_atleta)
+
+)
+
+--creare la tabla Categoria
+create table CATEGORIA(
+cod_categoria integer not null,
+categoria varchar(50) not null,
+primary key (cod_categoria)
+)
+
+--creare la tabla TIPO_PARTICIPACION
+create table TIPO_PARTICIPACION(
+cod_participacion integer not null,
+tipo_participacion varchar(100) not null,
+primary key (cod_participacion)
+)
+
+--creare la tabla evento
+create table EVENTO(
+    cod_evento integer not null,
+    fecha date not null,
+    ubicacion varchar(50) not null,
+    hora date not null,
+    DISCIPLINA_cod_disciplina integer not null,
+    TIPO_PARTICIPACION_cod_part integer not null,
+    CATEGORIA_cod_categoria integer not null,
+    constraint FKEVENTO_cod_disciplina foreign key(DISCIPLINA_cod_disciplina) references DISCIPLINA(cod_disciplina) on delete cascade ,
+    constraint FKEVENTO_cod_participacion foreign key(TIPO_PARTICIPACION_cod_part) references TIPO_PARTICIPACION(cod_participacion) on delete cascade ,
+    constraint FKEVENTO_cod_categoria foreign key(CATEGORIA_cod_categoria) references CATEGORIA(cod_categoria) on delete cascade ,
+    primary key(cod_evento)
+)
+
+--creare la tabla evento_atleta
+create table EVENTO_ATLETA(
+    ATLETA_cod_atleta integer not null,
+    EVENTO_cod_evento integer not null,
+    constraint FKEVENTOA_cod_atleta foreign key(ATLETA_cod_atleta) references ATLETA(cod_atleta) on delete cascade ,
+    constraint FKEVENTOA_cod_evento foreign key(EVENTO_cod_evento) references EVENTO(cod_evento) on delete cascade ,
+    primary key(ATLETA_cod_atleta, EVENTO_cod_evento)
+)
+
+--creare la tabla televisora
+create table TELEVISORA(
+    cod_televisora integer not null,
+    nombre varchar(50) not null,
+    primary key(cod_televisora)
+)
+
+--creare la tabla costo_evento 
+create table COSTO_EVENTO(
+    EVENTO_cod_evento integer not null,
+    TELEVISORA_cod_televisora integer not null,
+    tarifa integer not null,
+    constraint FKCOSTOE_cod_evento foreign key(EVENTO_cod_evento) references EVENTO(cod_evento) on delete cascade ,
+    constraint FKCOSTOE_cod_televisora foreign key(TELEVISORA_cod_televisora) references TELEVISORA(cod_televisora) on delete cascade ,
+    primary key(EVENTO_cod_evento, TELEVISORA_cod_televisora)
+)
+
+
+
+--aqui comenzare los query desde la seccion 2 a la 15
+--#2 En la tabla “Evento” se decidió que la fecha y hora se trabajaría en una sola columna
+--###### 1 Eliminar las columnas fecha y hora
+select *from EVENTO;
+
+Alter table EVENTO drop column fecha;
+Alter table EVENTO drop column hora;
+
+--###### 2 Crear una columna llamada “fecha_hora” con el tipo de dato que corresponda según el DBMS
+Alter table EVENTO add fecha_hora date not null;
+
+
+
+
+--#3 Todos los eventos de las olimpiadas deben ser programados del 24 de julio de 2020 a partir de las 9:00:00 hasta el 09 de agosto de 2020 hasta las 20:00:00
+
+Alter table EVENTO add constraint CH_FECHAHORA check ((fecha_hora) between TO_DATE('2020-07-24 9:00:00','yyyy-mm-dd hh24:mi:ss') and TO_DATE('2020-08-09 20:00:00','yyyy-mm-dd hh24:mi:ss'));
+
+
+--#4 
+--Se decidió que las ubicación de los eventos se registrarán previamente en
+--una tabla y que en la tabla “Evento” sólo se almacenara la llave foránea
+--según el código del registro de la ubicación, para esto debe realizar lo
+--siguiente:
+-- a. Crear la tabla llamada “Sede” que tendrá los campos:
+--    i. Código: será tipo entero y será la llave primaria.
+--    ii. Sede: será tipo varchar(50) y será obligatoria.
+-- b. Cambiar el tipo de dato de la columna Ubicación de la tabla Evento
+-- por un tipo entero.
+-- c. Crear una llave foránea en la columna Ubicación de la tabla Evento y
+-- referenciarla a la columna código de la tabla Sede, la que fue creada
+-- en el paso anterior.
+select *from EVENTO;
+--A
+create table SEDE(
+    codigo integer not null,
+    sede varchar(50) not null,
+    primary key(codigo)
+)
+
+--B
+Alter table EVENTO Alter column ubicacion type integer using ubicacion::integer;
+
+--C
+Alter table EVENTO add constraint FKEVENTO_ubicacion foreign key (ubicacion) references SEDE(codigo);
+
+
+--#5 
+--Se revisó la información de los miembros que se tienen actualmente y antes
+--de que se ingresen a la base de datos el Comité desea que a los miembros
+--que no tengan número telefónico se le ingrese el número por Default 0 al
+--momento de ser cargados a la base de datos.
+
+
+--por aqui va mi ejecucion
+
+Alter table MIEMBRO alter column telefono set default 0;
+
+
+select *from MIEMBRO;
+
+--#6 Generar el script necesario para hacer la inserción de datos a las tablas requeridas.
+
+
+
+--Insecion DATO TABLA PAIS
+insert into PAIS (cod_pais, nombre) values(1,'Guatemala');
+insert into PAIS (cod_pais, nombre) values(2,'Francia');
+insert into PAIS (cod_pais, nombre) values(3,'Argentina');
+insert into PAIS (cod_pais, nombre) values(4,'Alemania');
+insert into PAIS (cod_pais, nombre) values(5,'Italia');
+insert into PAIS (cod_pais, nombre) values(6,'Brasil');
+insert into PAIS (cod_pais, nombre) values(7,'Estados Unidos');
+
+select *from PAIS;
+
+--Insecion DATO TABLA PROFESION
+insert into PROFESION (cod_prof, nombre) values(1,'Medico');
+insert into PROFESION (cod_prof, nombre) values(2,'Arquitecto');
+insert into PROFESION (cod_prof, nombre) values(3,'Ingeniero');
+insert into PROFESION (cod_prof, nombre) values(4,'Secretaria');
+insert into PROFESION (cod_prof, nombre) values(5,'Auditor');
+
+select *from PROFESION;
+
+
+--Insecion DATO TABLA MIEMBRO
+insert into MIEMBRO (cod_miembro,nombre,apellido,edad,telefono,residencia,PAIS_cod_pais,PROFESION_cod_prof) values(1,'Scott','Mitchell',32,null,'1092 Highland Drive Manitowoc, WI 54220',7,3);
+insert into MIEMBRO (cod_miembro,nombre,apellido,edad,telefono,residencia,PAIS_cod_pais,PROFESION_cod_prof) values(2,'Fanette','Poulin',25,25075853,'49, boulevard Aristide Briand 76120 LE GRAND-QUEVILLY',2,4);
+insert into MIEMBRO (cod_miembro,nombre,apellido,edad,telefono,residencia,PAIS_cod_pais,PROFESION_cod_prof) values(3,'Laura','Cunha Silva',55,null,'Rua Onze, 86 Uberaba-MG',6,5);
+insert into MIEMBRO (cod_miembro,nombre,apellido,edad,telefono,residencia,PAIS_cod_pais,PROFESION_cod_prof) values(4,'Juan Jose','Lopez',38,36985247,'26 calle 4-10 zona 11',1,2);
+insert into MIEMBRO (cod_miembro,nombre,apellido,edad,telefono,residencia,PAIS_cod_pais,PROFESION_cod_prof) values(5,'Arcangela','Punicucci',39,391664921,'Via Santa Teresa, 114 90010-Geraci Siculo PA',5,1);
+insert into MIEMBRO (cod_miembro,nombre,apellido,edad,telefono,residencia,PAIS_cod_pais,PROFESION_cod_prof) values(6,'Jeuel','Villalpando',31,null,'Acuña de Figeroa 6106 80101 Playa Pascual',3,5);
+
+update MIEMBRO set  telefono = 0
+where telefono=null;
+delete from MIEMBRO;
+
+
+
+--Insecion DATO TABLA DISCIPLINA
+insert into DISCIPLINA (cod_disciplina,nombre,descripcion) values(1,'Atletismo','Saltos de longitud y triples, de altura y con pértiga o garrocha; las pruebas de lanzamiento de martillo, jabalina y disco.');
+insert into DISCIPLINA (cod_disciplina,nombre,descripcion) values(2,'Badminton',null);
+insert into DISCIPLINA (cod_disciplina,nombre,descripcion) values(3,'ciclismo',null);
+insert into DISCIPLINA (cod_disciplina,nombre,descripcion) values(4,'judo','Es un arte marcial que se originó en Japón alrededor de 1880');
+insert into DISCIPLINA (cod_disciplina,nombre,descripcion) values(5,'lucha',null);
+insert into DISCIPLINA (cod_disciplina,nombre,descripcion) values(6,'Tenis de mesa',null);
+insert into DISCIPLINA (cod_disciplina,nombre,descripcion) values(7,'Boxeo',null);
+insert into DISCIPLINA (cod_disciplina,nombre,descripcion) values(8,'Natacion','Está presente como deporte en los Juegos desde la primera edición de la era moderna, en Atenas, Grecia, en 1896, donde se disputo en aguas abiertas.');
+insert into DISCIPLINA (cod_disciplina,nombre,descripcion) values(9,'Esgrima',null);
+insert into DISCIPLINA (cod_disciplina,nombre,descripcion) values(10,'Vela',null);
+
+
+--Insecion DATO TABLA TIPO_MEDALLA
+insert into TIPO_MEDALLA (cod_tipo,medalla) values(1,'Oro');
+insert into TIPO_MEDALLA (cod_tipo,medalla) values(2,'Plata');
+insert into TIPO_MEDALLA (cod_tipo,medalla) values(3,'Bronce');
+insert into TIPO_MEDALLA (cod_tipo,medalla) values(4,'Platino');
+
+
+--Insecion DATO TABLA CATEGORIA
+insert into CATEGORIA (cod_categoria,categoria) values(1,'Clasificatorio');
+insert into CATEGORIA (cod_categoria,categoria) values(2,'Eliminatorio');
+insert into CATEGORIA (cod_categoria,categoria) values(3,'final');
+
+
+--Insecion DATO TABLA TIPO_PARTICIPACION
+insert into TIPO_PARTICIPACION (cod_participacion,tipo_participacion) values(1,'Individual');
+insert into TIPO_PARTICIPACION (cod_participacion,tipo_participacion) values(2,'Parejas');
+insert into TIPO_PARTICIPACION (cod_participacion,tipo_participacion) values(3,'Equipos');
+
+
+
+
+--Insecion DATO TABLA MEDALLERO
+insert into MEDALLERO (PAIS_cod_pais,TIPO_MEDALLA_cod_tipo,cantidad_medallas) values(5,1,3);
+insert into MEDALLERO (PAIS_cod_pais,TIPO_MEDALLA_cod_tipo,cantidad_medallas) values(2,1,5);
+insert into MEDALLERO (PAIS_cod_pais,TIPO_MEDALLA_cod_tipo,cantidad_medallas) values(6,3,4);
+insert into MEDALLERO (PAIS_cod_pais,TIPO_MEDALLA_cod_tipo,cantidad_medallas) values(4,4,3);
+insert into MEDALLERO (PAIS_cod_pais,TIPO_MEDALLA_cod_tipo,cantidad_medallas) values(7,3,10);
+insert into MEDALLERO (PAIS_cod_pais,TIPO_MEDALLA_cod_tipo,cantidad_medallas) values(3,2,8);
+insert into MEDALLERO (PAIS_cod_pais,TIPO_MEDALLA_cod_tipo,cantidad_medallas) values(1,1,2);
+insert into MEDALLERO (PAIS_cod_pais,TIPO_MEDALLA_cod_tipo,cantidad_medallas) values(1,4,5);
+insert into MEDALLERO (PAIS_cod_pais,TIPO_MEDALLA_cod_tipo,cantidad_medallas) values(5,2,7);
+
+
+--Insecion DATO TABLA SEDE
+insert into SEDE (codigo,sede) values(1,'Gimnasio Metropolitano de Tokio');
+insert into SEDE (codigo,sede) values(2,'Jardín del Palacio Imperial de Tokio');
+insert into SEDE (codigo,sede) values(3,'Gimnasio Nacional Yoyogi');
+insert into SEDE (codigo,sede) values(4,'Nippon Budokan');
+insert into SEDE (codigo,sede) values(5,'Estadio Olímpico');
+
+
+--Insecion DATO TABLA EVENTO
+insert into EVENTO (cod_evento,fecha_hora,ubicacion,DISCIPLINA_cod_disciplina,TIPO_PARTICIPACION_cod_part,CATEGORIA_cod_categoria) values(1,TO_DATE('2020-07-24 11:00:00','yyyy-mm-dd hh24:mi:ss'),3,2,2,1);
+insert into EVENTO (cod_evento,fecha_hora,ubicacion,DISCIPLINA_cod_disciplina,TIPO_PARTICIPACION_cod_part,CATEGORIA_cod_categoria) values(2,TO_DATE('2020-07-26 10:30:00','yyyy-mm-dd hh24:mi:ss'),1,6,1,3);
+insert into EVENTO (cod_evento,fecha_hora,ubicacion,DISCIPLINA_cod_disciplina,TIPO_PARTICIPACION_cod_part,CATEGORIA_cod_categoria) values(3,TO_DATE('2020-07-30 18:45:00','yyyy-mm-dd hh24:mi:ss'),5,7,1,2);
+insert into EVENTO (cod_evento,fecha_hora,ubicacion,DISCIPLINA_cod_disciplina,TIPO_PARTICIPACION_cod_part,CATEGORIA_cod_categoria) values(4,TO_DATE('2020-08-01 12:15:00','yyyy-mm-dd hh24:mi:ss'),2,1,1,1);
+insert into EVENTO (cod_evento,fecha_hora,ubicacion,DISCIPLINA_cod_disciplina,TIPO_PARTICIPACION_cod_part,CATEGORIA_cod_categoria) values(5,TO_DATE('2020-08-08 19:35:00','yyyy-mm-dd hh24:mi:ss'),4,10,3,1);
+
+
+
+
+
+
+
+
+
+--#7 
+--Después de que se implementó el script el cuál creó todas las tablas de las
+--bases de datos, el Comité Olímpico Internacional tomó la decisión de
+--eliminar la restricción “UNIQUE” de las siguientes tablas:
+
+--PAIS 		nombre
+--TIPO_MEDALLA  medalla
+--DEPARTAMENTO  nombre
+
+Alter table PAIS drop constraint UQ_nombrepais;
+Alter table TIPO_MEDALLA drop constraint UQ_TIPO_MEDALLA;
+Alter table DEPARTAMENTO drop constraint UQ_nombredepto;
+
+
+
+--#8 
+--Después de un análisis más profundo se decidió que los Atletas pueden
+--participar en varias disciplinas y no sólo en una como está reflejado
+--actualmente en las tablas, por lo que se pide que realice lo siguiente.
+--  a. Script que elimine la llave foránea de “cod_disciplina” que se
+--     encuentra en la tabla “Atleta”.
+--  b. Script que cree una tabla con el nombre “Disciplina_Atleta” que
+--     contendrá los siguiente campos:
+--       i. Cod_atleta (llave foránea de la tabla Atleta)
+--       ii. Cod_disciplina (llave foránea de la tabla Disciplina)
+--           La llave primaria será la unión de las llaves foráneas “cod_atleta” y
+--           “cod_disciplina”.
+
+--a
+Alter table ATLETA drop constraint FKATLETA_cod_disciplina;
+
+--b
+create table DISCIPLINA_ATLETA
+(
+    cod_atleta integer not null,
+    cod_disciplina integer not null,
+    constraint FKDISCIPLINAA_cod_atleta foreign key(cod_atleta) references ATLETA(cod_atleta) on delete cascade,
+    constraint FKDISCIPLINAA_cod_disc foreign key(cod_disciplina) references DISCIPLINA(cod_disciplina) on delete cascade,
+    primary key(cod_atleta,cod_disciplina)
+)
+
+
+--#9 
+--En la tabla “Costo_Evento” se determinó que la columna “tarifa” no debe
+--ser entero sino un decimal con 2 cifras de precisión.
+--Generar el script correspondiente para modificar el tipo de dato que se le
+--pide
+Alter table COSTO_EVENTO Alter column tarifa type numeric(32,2);
+Alter table COSTO_EVENTO Alter column tarifa type decimal(32,2);
+select *from COSTO_EVENTO;
+
+--#10 Generar el Script que borre de la tabla “Tipo_Medalla”, el registro siguiente
+--Cod_tipo     4
+--Medalla      Platino
+
+delete from TIPO_MEDALLA where cod_tipo=4 and Lower(Medalla)='platino';
+
+
+--#11 
+--La fecha de las olimpiadas está cerca y los preparativos siguen, pero de
+--último momento se dieron problemas con las televisoras encargadas de
+--transmitir los eventos, ya que no hay tiempo de solucionar los problemas
+--que se dieron, se decidió no transmitir el evento a través de las televisoras
+--por lo que el Comité Olímpico pide generar el script que elimine la tabla
+--“TELEVISORAS” y “COSTO_EVENTO”.
+
+drop table TELEVISORA cascade;
+drop table COSTO_EVENTO cascade;
+
+
+
+--#12 
+--El comité olímpico quiere replantear las disciplinas que van a llevarse a cabo,
+--por lo cual pide generar el script que elimine todos los registros contenidos
+--en la tabla “DISCIPLINA”.
+
+delete from DISCIPLINA;
+
+
+--#13
+--Los miembros que no tenían registrado su número de teléfono en sus
+--perfiles fueron notificados, por lo que se acercaron a las instalaciones de
+--Comité para actualizar sus datos.
+--Nombre			Teléfono
+--Laura Cunha Silva		55464601
+--Jeuel Villalpando		91514243
+--Scott Mitchell		920686670
+select *from MIEMBRO;
+update MIEMBRO set telefono=55464601 where nombre='Laura' and apellido='Cunha Silva';
+
+update MIEMBRO set telefono=91514243 where nombre='Jeuel' and apellido='Villalpando';
+update MIEMBRO set telefono=920686670 where nombre='Scott' and apellido='Mitchell';
+
+
+--#14
+--El Comité decidió que necesita la fotografía en la información de los atletas
+--para su perfil, por lo que se debe agregar la columna “Fotografía” a la tabla
+--Atleta, debido a que es un cambio de última hora este campo deberá ser
+--opcional
+alter table ATLETA add Fotografia varchar(175) null;
+
+select *from atleta;
+--#15
+--Todos los atletas que se registren deben cumplir con ser menores a 25 años.
+--De lo contrario no se debe poder registrar a un atleta en la base de datos.
+Alter table ATLETA add constraint LimitarEdad check ((edad)<25);
+
+
+
